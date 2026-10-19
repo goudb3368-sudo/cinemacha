@@ -1,0 +1,353 @@
+
+<!DOCTYPE html>
+<html lang="kn">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CineMacha</title>
+<style>
+:root{color-scheme:dark}
+*{box-sizing:border-box}
+body{margin:0;background:#101019;color:#fff;font-family:Arial,sans-serif}
+header{padding:22px 16px;background:#191927;position:sticky;top:0;z-index:5}
+.logo{font-size:27px;font-weight:800;color:#ff4e78}
+.logo span{color:white}
+header p{color:#b8b8ca;font-size:12px;margin:6px 0 0}
+main{padding:16px;max-width:1100px;margin:auto}
+input,select,button{font:inherit;border-radius:10px;padding:12px;border:1px solid #38384b}
+input,select{background:#202030;color:white;min-width:0}
+.search{display:flex;gap:8px;margin-bottom:12px}
+.search input{width:100%}
+button{background:#ff4e78;color:white;border:0;font-weight:bold;cursor:pointer}
+button:disabled{opacity:.5}
+.filters{display:flex;gap:8px;margin:12px 0;flex-wrap:wrap}
+.filters select{flex:1}
+h2{font-size:19px;margin:20px 0 12px}
+#status{color:#bdbdd0;font-size:14px;margin:12px 0}
+.grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+.movie{background:#1b1b2a;border-radius:13px;overflow:hidden;border:1px solid #2e2e40}
+.poster{width:100%;aspect-ratio:2/3;object-fit:cover;background:#29293b;display:block}
+.info{padding:10px}
+.title{font-weight:bold;line-height:1.35;font-size:15px}
+.meta{font-size:12px;color:#b9b9ca;margin:7px 0}
+.rating{color:#ffd166}
+.overview{font-size:12px;color:#d1d1df;line-height:1.5}
+.movie button{width:100%;margin-top:8px;font-size:13px}
+.secondary{background:#343449}
+#more{width:100%;margin-top:16px}
+#playerWrap{display:none;background:#1b1b2a;border-radius:14px;padding:12px;margin:16px 0}
+#player{width:100%;aspect-ratio:16/9;border:0;border-radius:10px;background:#000}
+.playerHead{display:flex;justify-content:space-between;gap:10px;align-items:center;margin-bottom:10px}
+#playerTitle{font-weight:bold}
+.note{font-size:12px;color:#b9b9ca;line-height:1.6}
+footer{padding:24px 16px;color:#aaaabb;font-size:12px;line-height:1.6}
+@media(min-width:600px){.grid{grid-template-columns:repeat(3,minmax(0,1fr))}}
+@media(min-width:900px){.grid{grid-template-columns:repeat(5,minmax(0,1fr))}}
+</style>
+</head>
+<body>
+<header>
+  <div class="logo">🎬 Cine<span>Macha</span></div>
+  <p>ನಿನ್ನ ಸಿನಿಮಾಗಳ ಜಗತ್ತು</p>
+</header>
+
+<main>
+  <div class="search">
+    <input id="searchInput" placeholder="ಸಿನಿಮಾ ಹೆಸರನ್ನು ಹುಡುಕು..." />
+    <button id="searchBtn">ಹುಡುಕು</button>
+  </div>
+
+  <div class="filters">
+    <select id="language">
+      <option value="all">ಎಲ್ಲಾ ಭಾಷೆಗಳು</option>
+      <option value="kn">ಕನ್ನಡ</option>
+      <option value="te">ತೆಲುಗು</option>
+      <option value="ta">ತಮಿಳು</option>
+      <option value="hi">ಹಿಂದಿ</option>
+      <option value="ml">ಮಲಯಾಳಂ</option>
+      <option value="en">ಇಂಗ್ಲಿಷ್</option>
+    </select>
+    <select id="sort">
+      <option value="popularity.desc">ಜನಪ್ರಿಯ ಸಿನಿಮಾಗಳು</option>
+      <option value="vote_average.desc">ಹೆಚ್ಚಿನ ರೇಟಿಂಗ್</option>
+      <option value="primary_release_date.desc">ಹೊಸ ಸಿನಿಮಾಗಳು</option>
+    </select>
+  </div>
+
+  <div id="status">ಸಿನಿಮಾಗಳನ್ನು ಲೋಡ್ ಮಾಡಲಾಗುತ್ತಿದೆ...</div>
+
+  <section id="playerWrap">
+    <div class="playerHead">
+      <div id="playerTitle">ಟ್ರೈಲರ್</div>
+      <button id="closePlayer" class="secondary">ಮುಚ್ಚು ✕</button>
+    </div>
+    <iframe id="player"
+      title="YouTube movie trailer"
+      allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+      referrerpolicy="strict-origin-when-cross-origin"
+      allowfullscreen></iframe>
+    <p class="note">ವಿಡಿಯೋ YouTube ಮೂಲಕ ಪ್ಲೇ ಆಗುತ್ತದೆ. ಕೆಲವು ವಿಡಿಯೋಗಳನ್ನು ಮಾಲೀಕರು embed ಮಾಡಲು ಅನುಮತಿಸದೇ ಇರಬಹುದು.</p>
+  </section>
+
+  <h2 id="heading">🔥 ಜನಪ್ರಿಯ ಸಿನಿಮಾಗಳು</h2>
+  <div id="movies" class="grid"></div>
+  <button id="more">ಇನ್ನಷ್ಟು ಸಿನಿಮಾಗಳು ತೋರಿಸು</button>
+
+  <h2>ಪೂರ್ಣ ಸಿನಿಮಾ</h2>
+  <p class="note">ಈಗ ಕ್ಯಾಟಲಾಗ್ ಮತ್ತು ಟ್ರೈಲರ್‌ಗಳು ಸಿದ್ಧವಾಗುತ್ತವೆ. ಪೂರ್ಣ ಸಿನಿಮಾ ಪ್ಲೇ ಮಾಡಲು ಹಕ್ಕುದಾರರು ಅನುಮತಿ ನೀಡಿರುವ ನೇರ ವಿಡಿಯೋ URL ಅಥವಾ ಅಧಿಕೃತ embed ಬೇಕು. TMDB API ಕೀ ಸ್ವತಃ ಪೂರ್ಣ ಸಿನಿಮಾ ನೀಡುವುದಿಲ್ಲ.</p>
+</main>
+
+<footer>
+  ಈ ಉತ್ಪನ್ನವು TMDB API ಬಳಸುತ್ತದೆ; TMDBಯಿಂದ ಅನುಮೋದಿಸಲ್ಪಟ್ಟಿಲ್ಲ ಅಥವಾ ಪ್ರಮಾಣೀಕರಿಸಲ್ಪಟ್ಟಿಲ್ಲ.
+  ಸಿನಿಮಾ ಮಾಹಿತಿ ಮತ್ತು ಚಿತ್ರಗಳ ಮೂಲ: TMDB.
+</footer>
+
+<script>
+/*
+  ಇಲ್ಲಿ ನಿನ್ನ TMDB API Read Access Token ಹಾಕು.
+  API key ಅನ್ನು ಯಾರಿಗೂ ಕಳುಹಿಸಬೇಡ.
+*/
+const TMDB_TOKEN = eyJhbGciOiJIUzI1NiJ9.eyJhdWQiOiI2NzE0Y2ViMTVjYmE2ZTA4NWRjNmM5ODViMzNlYzU0NCIsIm5iZiI6MTc5MjQzODg5Mi4zMTcsInN1YiI6IjZhZDY3MjZjYzlhY2RjMDRmOGNlYmQ4YyIsInNjb3BlcyI6WyJhcGlfcmVhZCJdLCJ2ZXJzaW9uIjoxfQ.KM1o7GQRY_NjTD7JU9R3433hZV_kROkzyi8RbPbNsjg
+
+const API = "https://api.themoviedb.org/3";
+const IMG = "https://image.tmdb.org/t/p/w500";
+
+const moviesEl = document.getElementById("movies");
+const statusEl = document.getElementById("status");
+const searchInput = document.getElementById("searchInput");
+const languageEl = document.getElementById("language");
+const sortEl = document.getElementById("sort");
+const moreBtn = document.getElementById("more");
+const playerWrap = document.getElementById("playerWrap");
+const player = document.getElementById("player");
+
+let page = 1;
+let mode = "discover";
+let currentResults = [];
+let loading = false;
+let totalPages = 1;
+
+async function api(path) {
+  if (!TMDB_TOKEN ||
+      TMDB_TOKEN.includes("PASTE_YOUR")) {
+    throw new Error("ಮೊದಲು ಕೋಡ್‌ನಲ್ಲಿ TMDB API Read Access Token ಹಾಕು.");
+  }
+
+  const response = await fetch(API + path, {
+    headers: {
+      Authorization: "Bearer " + TMDB_TOKEN,
+      accept: "application/json"
+    }
+  });
+
+  if (!response.ok) {
+    if (response.status === 401) {
+      throw new Error("API Token ಸರಿಯಿಲ್ಲ. TMDBಯಲ್ಲಿ Token ಪರಿಶೀಲಿಸು.");
+    }
+    if (response.status === 429) {
+      throw new Error("ಹಲವು ವಿನಂತಿಗಳಾಗಿವೆ. ಸ್ವಲ್ಪ ಹೊತ್ತು ಬಿಟ್ಟು ಪ್ರಯತ್ನಿಸು.");
+    }
+    throw new Error("TMDB ದೋಷ: HTTP " + response.status);
+  }
+
+  return response.json();
+}
+
+function safeText(value) {
+  return String(value || "").replace(/[&<>"']/g, ch => ({
+    "&":"&amp;",
+    "<":"&lt;",
+    ">":"&gt;",
+    '"':"&quot;",
+    "'":"&#39;"
+  }[ch]));
+}
+
+function posterUrl(path) {
+  return path ? IMG + path : "";
+}
+
+function makeMovieCard(movie) {
+  const card = document.createElement("article");
+  card.className = "movie";
+
+  const year = movie.release_date
+    ? movie.release_date.slice(0, 4)
+    : "ವರ್ಷ ತಿಳಿದಿಲ್ಲ";
+
+  const poster = posterUrl(movie.poster_path);
+  const rating = Number(movie.vote_average || 0).toFixed(1);
+
+  card.innerHTML = `
+    <img class="poster"
+      ${poster ? `src="${poster}"` : ""}
+      alt="${safeText(movie.title)} ಪೋಸ್ಟರ್"
+      loading="lazy">
+    <div class="info">
+      <div class="title">${safeText(movie.title)}</div>
+      <div class="meta">${year} · <span class="rating">★ ${rating}</span></div>
+      <p class="overview">${safeText(movie.overview || "ವಿವರಣೆ ಲಭ್ಯವಿಲ್ಲ.")}</p>
+      <button class="trailer">▶ ಟ್ರೈಲರ್ ಪ್ಲೇ</button>
+    </div>`;
+
+  card.querySelector(".trailer").addEventListener("click", () => {
+    playTrailer(movie);
+  });
+
+  return card;
+}
+
+async function loadMovies(reset = false) {
+  if (loading) return;
+
+  if (reset) {
+    page = 1;
+    currentResults = [];
+    moviesEl.replaceChildren();
+  }
+
+  loading = true;
+  moreBtn.disabled = true;
+  statusEl.textContent = "ಸಿನಿಮಾಗಳನ್ನು ಲೋಡ್ ಮಾಡಲಾಗುತ್ತಿದೆ...";
+
+  try {
+    const query = searchInput.value.trim();
+    const lang = languageEl.value;
+
+    let path;
+
+    if (query) {
+      mode = "search";
+      const params = new URLSearchParams({
+        query,
+        page: String(page),
+        include_adult: "false",
+        language: "en-US",
+        region: "IN"
+      });
+      path = "/search/movie?" + params;
+      document.getElementById("heading").textContent =
+        "🔎 ಹುಡುಕಾಟದ ಫಲಿತಾಂಶಗಳು";
+    } else {
+      mode = "discover";
+      const params = new URLSearchParams({
+        page: String(page),
+        sort_by: sortEl.value,
+        include_adult: "false",
+        include_video: "false",
+        language: "en-US",
+        region: "IN"
+      });
+
+      if (lang !== "all") {
+        params.set("with_original_language", lang);
+      }
+
+      path = "/discover/movie?" + params;
+      document.getElementById("heading").textContent =
+        "🔥 ಜನಪ್ರಿಯ ಸಿನಿಮಾಗಳು";
+    }
+
+    const data = await api(path);
+    totalPages = Math.min(data.total_pages || 1, 500);
+
+    const results = data.results || [];
+    currentResults = currentResults.concat(results);
+
+    results.forEach(movie => {
+      moviesEl.appendChild(makeMovieCard(movie));
+    });
+
+    statusEl.textContent = results.length
+      ? `${data.total_results || results.length} ಸಿನಿಮಾಗಳಲ್ಲಿ ಪುಟ ${page} · ಇಲ್ಲಿ ${results.length} ತೋರಿಸಲಾಗಿದೆ`
+      : "ಸಿನಿಮಾಗಳು ಸಿಗಲಿಲ್ಲ. ಬೇರೆ ಹೆಸರಿನಿಂದ ಹುಡುಕು.";
+
+    moreBtn.style.display = page < totalPages ? "block" : "none";
+  } catch (error) {
+    statusEl.textContent = error.message ||
+      "ಲೋಡ್ ಆಗಲಿಲ್ಲ. ಇಂಟರ್ನೆಟ್ ಸಂಪರ್ಕ ಪರಿಶೀಲಿಸು.";
+  } finally {
+    loading = false;
+    moreBtn.disabled = false;
+  }
+}
+
+async function playTrailer(movie) {
+  statusEl.textContent = `${movie.title}: ಟ್ರೈಲರ್ ಹುಡುಕಲಾಗುತ್ತಿದೆ...`;
+
+  try {
+    // ಮೊದಲು ಇಂಗ್ಲಿಷ್ ಟ್ರೈಲರ್‌ಗಳನ್ನು ಹುಡುಕು.
+    let data = await api(
+      `/movie/${movie.id}/videos?language=en-US`
+    );
+
+    let videos = data.results || [];
+
+    // ಸಿಗದಿದ್ದರೆ ಮೂಲ ಭಾಷೆಯ ವಿಡಿಯೋ ಪಟ್ಟಿಯನ್ನು ಪ್ರಯತ್ನಿಸು.
+    if (!videos.some(isPlayableTrailer)) {
+      data = await api(`/movie/${movie.id}/videos`);
+      videos = data.results || [];
+    }
+
+    const trailer = videos.find(isPlayableTrailer);
+
+    if (!trailer) {
+      statusEl.textContent =
+        `“${movie.title}”ಗೆ embed ಮಾಡಬಹುದಾದ YouTube ಟ್ರೈಲರ್ ಸಿಗಲಿಲ್ಲ.`;
+      return;
+    }
+
+    document.getElementById("playerTitle").textContent =
+      movie.title + " — " + trailer.name;
+
+    // YouTube video key ಅನ್ನು TMDBಯ videos endpoint ಒದಗಿಸುತ್ತದೆ.
+    player.src =
+      "https://www.youtube-nocookie.com/embed/" +
+      encodeURIComponent(trailer.key) +
+      "?autoplay=1&rel=0";
+
+    playerWrap.style.display = "block";
+    playerWrap.scrollIntoView({ behavior: "smooth", block: "start" });
+    statusEl.textContent =
+      "ಟ್ರೈಲರ್ ತೆರೆಯಲಾಗಿದೆ. ಕೆಲವು ವಿಡಿಯೋಗಳಿಗೆ YouTube ನಿರ್ಬಂಧಗಳಿರಬಹುದು.";
+  } catch (error) {
+    statusEl.textContent = error.message ||
+      "ಟ್ರೈಲರ್ ಲೋಡ್ ಆಗಲಿಲ್ಲ. ಮತ್ತೆ ಪ್ರಯತ್ನಿಸು.";
+  }
+}
+
+function isPlayableTrailer(video) {
+  return video.site === "YouTube" &&
+    video.type === "Trailer" &&
+    Boolean(video.key) &&
+    video.official !== false;
+}
+
+document.getElementById("searchBtn").addEventListener("click", () => {
+  loadMovies(true);
+});
+
+searchInput.addEventListener("keydown", event => {
+  if (event.key === "Enter") loadMovies(true);
+});
+
+languageEl.addEventListener("change", () => loadMovies(true));
+sortEl.addEventListener("change", () => loadMovies(true));
+
+moreBtn.addEventListener("click", () => {
+  if (page < totalPages && !loading) {
+    page += 1;
+    loadMovies(false);
+  }
+});
+
+document.getElementById("closePlayer").addEventListener("click", () => {
+  player.src = "";
+  playerWrap.style.display = "none";
+});
+
+// ಆರಂಭದಲ್ಲಿ ಮೊದಲ ಪುಟ ಲೋಡ್ ಮಾಡು.
+loadMovies(true);
+</script>
+</body>
+</html>
